@@ -1,5 +1,6 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import SideNavBar from "./SideNavBar";
+import TopNavBar from './TopNavBar';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -10,7 +11,6 @@ const SIDEBAR_WIDTH = 240;
 
 export default function DashboardLayout({
   children,
-  topbarContent,
 }: DashboardLayoutProps) {
   return (
     <Box sx={{ display: 'flex', bgcolor: 'grey.100', minHeight: '100vh' }}>
@@ -50,7 +50,7 @@ export default function DashboardLayout({
             zIndex: 900,
           }}
         >
-          {topbarContent ?? <Typography fontWeight="bold">Topbar</Typography>}
+          <TopNavBar />
         </Box>
 
         {/* Main content */}
