@@ -3,12 +3,9 @@ import DashboardLayout from './components/DashboardLayout';
 
 function App() {
   return (
-    <DashboardLayout
-      topbarContent={
-        <Typography fontWeight="bold">Dashboard / Reports</Typography>
-      }
-    >
-      <Typography>Main content goes here</Typography>
+    <DashboardLayout>
+      <Typography variant="h4">Main Section</Typography>
+      {/* Add more main content here */}
     </DashboardLayout>
   );
 }

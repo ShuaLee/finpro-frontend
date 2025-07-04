@@ -30,8 +30,6 @@ const SideNavBar = () => {
       sx={{
         height: '100%',
         width: '100%',
-        px: 2,
-        py: 1,
       }}
       spacing={1}
     >

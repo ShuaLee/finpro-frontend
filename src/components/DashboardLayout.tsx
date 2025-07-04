@@ -1,61 +1,55 @@
-import { Box } from '@mui/material';
-import SideNavBar from "./SideNavBar";
-import TopNavBar from './TopNavBar';
+import { Box, Paper } from '@mui/material';
+import SideNavBar from './SideNavBar';
+
+const SIDEBAR_WIDTH = 220;
+const SPACING = 8; // px — reduced spacing
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
-  topbarContent?: React.ReactNode;
 };
 
-const SIDEBAR_WIDTH = 240;
-
-export default function DashboardLayout({
-  children,
-}: DashboardLayoutProps) {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <Box sx={{ display: 'flex', bgcolor: 'grey.100', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        bgcolor: '#e9ebf0',
+        position: 'relative',
+      }}
+    >
       {/* Sidebar */}
       <Box
         sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: `${SIDEBAR_WIDTH}px`,
-          height: '100vh',
-          bgcolor: 'white',
-          borderRight: '1px solid',
-          borderColor: 'grey.300',
-          p: 0,
-          zIndex: 1000,
+          width: SIDEBAR_WIDTH,
+          bgcolor: '#e9ebf0',
+          p: 2,
         }}
       >
         <SideNavBar />
       </Box>
 
-      <Box sx={{ marginLeft: `${SIDEBAR_WIDTH}px`, width: '100%' }}>
-        {/* Topbar */}
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: `${SIDEBAR_WIDTH}px`,
-            right: 0,
-            height: '64px',
-            bgcolor: 'white',
-            borderBottom: '1px solid',
-            borderColor: 'grey.300',
-            display: 'flex',
-            alignItems: 'center',
-            px: 6,
-            zIndex: 900,
-          }}
-        >
-          <TopNavBar />
-        </Box>
-
-        {/* Main content */}
-        <Box sx={{ pt: '64px' }}>{children}</Box>
-      </Box>
+      {/* Floating Main Section */}
+      <Paper
+        elevation={0} // removes shadow
+        sx={{
+          position: 'absolute',
+          top: `${SPACING}px`,
+          bottom: `${SPACING}px`,
+          right: `${SPACING}px`,
+          left: `${SIDEBAR_WIDTH + SPACING}px`,
+          bgcolor: 'white',
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'grey.300',
+          p: 4,
+          overflow: 'auto',
+        }}
+      >
+        {children}
+      </Paper>
     </Box>
   );
-}
+};
+
+export default DashboardLayout;
