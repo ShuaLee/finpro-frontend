@@ -1,7 +1,7 @@
 import { Box, Paper } from '@mui/material';
 import SideNavBar from './SideNavBar';
 
-const SIDEBAR_WIDTH = 220;
+const SIDEBAR_WIDTH = 200;
 const SPACING = 8;
 
 type DashboardLayoutProps = {
