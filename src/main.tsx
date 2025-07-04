@@ -13,6 +13,17 @@ const theme = createTheme({
     background: {
       default: '#f8f9fa',
     },
+    text: {
+      primary: '#212121',
+    },
+  },
+  typography: {
+    fontFamily: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif`,
+    fontWeightRegular: 300,
+    fontWeightMedium: 400,
+    fontWeightBold: 500,
+    // Increase base sizes slightly
+    fontSize: 15, // default is 14
   },
 });
 

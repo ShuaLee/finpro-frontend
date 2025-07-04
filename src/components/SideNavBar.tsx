@@ -2,22 +2,52 @@ import {
   Box,
   Button,
   Stack,
-  Menu,
-  MenuItem,
+  Collapse,
 } from '@mui/material';
-import { ExpandMore } from '@mui/icons-material';
+import {
+  AccountBalanceWalletOutlined,
+  ExpandMore,
+  SpaceDashboardOutlined,
+  SettingsOutlined,
+} from '@mui/icons-material';
 import { useState } from 'react';
 import logo from '../assets/logo.webp';
 
+type NavSection = 'dashboard' | 'investments' | 'settings';
+
 const SideNavBar = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [open, setOpen] = useState(false);
 
-  const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // Temporarily hard-coded, cast as NavSection to fix TS error
+  const current = 'dashboard' as NavSection;
 
-  const handleClose = () => setAnchorEl(null);
+  const toggleOpen = () => setOpen((prev) => !prev);
+
+  const navButtonStyles = (active: boolean = false) => ({
+    justifyContent: 'flex-start',
+    width: '100%',
+    pl: 3,
+    color: active ? '#212121' : '#424242', // readable dark gray
+    borderRadius: '8px',
+    textTransform: 'none',
+    fontWeight: active ? 500 : 400,
+    backgroundColor: active ? '#f1f3f5' : 'transparent', // Dark gray when active
+    '&:hover': {
+      backgroundColor: active ? '#f1f3f5' : '#f1f3f5',
+    },
+    '&::before': active
+    ? {
+        content: '""',
+        position: 'absolute',
+        left: 8,
+        top: 5,
+        bottom: 5,
+        width: '4px',
+        backgroundColor: '#212121',
+        borderRadius: '4px',
+      }
+    : {},
+  });
 
   return (
     <Stack
@@ -27,8 +57,8 @@ const SideNavBar = () => {
         width: '100%',
         px: 2,
         py: 1,
-        spacing: 1,
       }}
+      spacing={1}
     >
       {/* Logo */}
       <Box
@@ -41,49 +71,60 @@ const SideNavBar = () => {
           component="img"
           src={logo}
           alt="Logo"
-          sx={{ height: '40px', objectFit: 'contain' }}
+          sx={{ height: '140px', objectFit: 'contain' }}
         />
       </Box>
 
-      {/* Buttons */}
+      {/* Dashboard */}
       <Button
         variant="text"
-        sx={{ justifyContent: 'flex-start', width: '100%' }}
+        sx={navButtonStyles(current === 'dashboard')}
+        startIcon={<SpaceDashboardOutlined />}
       >
         Dashboard
       </Button>
 
-      {/* Portfolios Dropdown */}
+      {/* Investments */}
       <Button
         variant="text"
-        endIcon={<ExpandMore />}
-        onClick={handleOpen}
-        sx={{ justifyContent: 'space-between', width: '100%' }}
+        sx={navButtonStyles(current === 'investments')}
+        endIcon={
+          <ExpandMore
+            sx={{
+              transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: '0.3s',
+              ml: 'auto',
+            }}
+          />
+        }
+        onClick={toggleOpen}
+        startIcon={<AccountBalanceWalletOutlined />}
       >
-        Portfolios
+        Investments
       </Button>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        PaperProps={{
-          sx: {
-            width: '100%',
-            mt: '-8px',
-          },
-        }}
-      >
-        <MenuItem onClick={handleClose}>Stock Portfolio</MenuItem>
-        <MenuItem onClick={handleClose}>Precious Metals</MenuItem>
-        <MenuItem onClick={handleClose}>Crypto Portfolio</MenuItem>
-        <MenuItem onClick={handleClose}>Add New...</MenuItem>
-      </Menu>
 
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <Stack pl={2} gap={0.5}>
+          <Button variant="text" sx={navButtonStyles()}>
+            Stock Portfolio
+          </Button>
+          <Button variant="text" sx={navButtonStyles()}>
+            Precious Metals
+          </Button>
+          <Button variant="text" sx={navButtonStyles()}>
+            Crypto Portfolio
+          </Button>
+          <Button variant="text" sx={navButtonStyles()}>
+            Add New...
+          </Button>
+        </Stack>
+      </Collapse>
+
+      {/* Settings */}
       <Button
         variant="text"
-        sx={{ justifyContent: 'flex-start', width: '100%' }}
+        sx={navButtonStyles(current === 'settings')}
+        startIcon={<SettingsOutlined />}
       >
         Settings
       </Button>
