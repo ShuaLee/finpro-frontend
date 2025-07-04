@@ -1,12 +1,14 @@
-import { Text } from "@chakra-ui/react";
-import DashboardLayout from "./components/DashboardLayout";
+import { Typography } from '@mui/material';
+import DashboardLayout from './components/DashboardLayout';
 
 function App() {
   return (
     <DashboardLayout
-      topbarContent={<Text fontWeight="bold">Dashboard / Reports</Text>}
+      topbarContent={
+        <Typography fontWeight="bold">Dashboard / Reports</Typography>
+      }
     >
-      <Text>Main content goes here</Text>
+      <Typography>Main content goes here</Typography>
     </DashboardLayout>
   );
 }

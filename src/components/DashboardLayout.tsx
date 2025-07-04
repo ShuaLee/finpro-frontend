@@ -1,5 +1,5 @@
-import { Box, Text } from "@chakra-ui/react";
-import NavBar from "../components/NavBar";
+import { Box, Typography } from '@mui/material';
+import SideNavBar from "./SideNavBar";
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -13,44 +13,48 @@ export default function DashboardLayout({
   topbarContent,
 }: DashboardLayoutProps) {
   return (
-    <Box display="flex" bg="gray.100" minH="100vh">
+    <Box sx={{ display: 'flex', bgcolor: 'grey.100', minHeight: '100vh' }}>
       {/* Sidebar */}
       <Box
-        position="fixed"
-        top="0"
-        left="0"
-        width={`${SIDEBAR_WIDTH}px`}
-        height="100vh"
-        bg="white"
-        borderRight="1px solid"
-        borderColor="gray.300"
-        p="4"
-        zIndex={1000}
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: `${SIDEBAR_WIDTH}px`,
+          height: '100vh',
+          bgcolor: 'white',
+          borderRight: '1px solid',
+          borderColor: 'grey.300',
+          p: 0,
+          zIndex: 1000,
+        }}
       >
-        <NavBar />
+        <SideNavBar />
       </Box>
 
-      <Box ml={`${SIDEBAR_WIDTH}px`}>
-        {/* Topbar - Fixed at top of page, aligned right of sidebar */}
+      <Box sx={{ marginLeft: `${SIDEBAR_WIDTH}px`, width: '100%' }}>
+        {/* Topbar */}
         <Box
-          position="fixed"
-          top="0"
-          left={`${SIDEBAR_WIDTH}px`}
-          right="0"
-          height="64px"
-          bg="white"
-          borderBottom="1px solid"
-          borderColor="gray.300"
-          display="flex"
-          alignItems="center"
-          px="6"
-          zIndex={900}
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: `${SIDEBAR_WIDTH}px`,
+            right: 0,
+            height: '64px',
+            bgcolor: 'white',
+            borderBottom: '1px solid',
+            borderColor: 'grey.300',
+            display: 'flex',
+            alignItems: 'center',
+            px: 6,
+            zIndex: 900,
+          }}
         >
-          {topbarContent ?? <Text fontWeight="bold">Topbar</Text>}
+          {topbarContent ?? <Typography fontWeight="bold">Topbar</Typography>}
         </Box>
 
         {/* Main content */}
-        <Box pt="64px">{children}</Box>
+        <Box sx={{ pt: '64px' }}>{children}</Box>
       </Box>
     </Box>
   );

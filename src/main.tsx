@@ -1,16 +1,26 @@
-import { Provider } from "@/components/ui/provider";
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App.tsx";
-import { ColorModeProvider } from "./components/ui/color-mode.tsx";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
 
-createRoot(document.getElementById("root")!).render(
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
+
+
+const theme = createTheme({
+  palette: {
+    mode: 'light', // Change to 'dark' if needed
+    background: {
+      default: '#f8f9fa',
+    },
+  },
+});
+
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ColorModeProvider>
-      <Provider>
-        <App />
-      </Provider>
-    </ColorModeProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </StrictMode>
 );
