@@ -27,7 +27,15 @@ const TopNavBar = () => {
   const firstName = "John";
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+    <Box
+        sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center', // 🔥 This vertically centers both items
+            width: '100%',
+            height: '100%', // Ensure it uses full height of its parent
+        }}
+        >
       {/* Breadcrumbs */}
       <Typography variant="subtitle1" fontWeight={500}>
         Dashboard / Reports

@@ -12,6 +12,7 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import logo from '../assets/logo.webp';
+import { getNavButtonStyles } from '../styles/navButtonStyles';
 
 type NavSection = 'dashboard' | 'investments' | 'settings';
 
@@ -22,32 +23,6 @@ const SideNavBar = () => {
   const current = 'dashboard' as NavSection;
 
   const toggleOpen = () => setOpen((prev) => !prev);
-
-  const navButtonStyles = (active: boolean = false) => ({
-    justifyContent: 'flex-start',
-    width: '100%',
-    pl: 3,
-    color: active ? '#212121' : '#424242', // readable dark gray
-    borderRadius: '8px',
-    textTransform: 'none',
-    fontWeight: active ? 500 : 400,
-    backgroundColor: active ? '#f1f3f5' : 'transparent', // Dark gray when active
-    '&:hover': {
-      backgroundColor: active ? '#f1f3f5' : '#f1f3f5',
-    },
-    '&::before': active
-    ? {
-        content: '""',
-        position: 'absolute',
-        left: 8,
-        top: 5,
-        bottom: 5,
-        width: '4px',
-        backgroundColor: '#212121',
-        borderRadius: '4px',
-      }
-    : {},
-  });
 
   return (
     <Stack
@@ -78,7 +53,7 @@ const SideNavBar = () => {
       {/* Dashboard */}
       <Button
         variant="text"
-        sx={navButtonStyles(current === 'dashboard')}
+        sx={getNavButtonStyles(current === 'dashboard')}
         startIcon={<SpaceDashboardOutlined />}
       >
         Dashboard
@@ -87,7 +62,7 @@ const SideNavBar = () => {
       {/* Investments */}
       <Button
         variant="text"
-        sx={navButtonStyles(current === 'investments')}
+        sx={getNavButtonStyles(current === 'investments')}
         endIcon={
           <ExpandMore
             sx={{
@@ -105,16 +80,16 @@ const SideNavBar = () => {
 
       <Collapse in={open} timeout="auto" unmountOnExit>
         <Stack pl={2} gap={0.5}>
-          <Button variant="text" sx={navButtonStyles()}>
+          <Button variant="text" sx={getNavButtonStyles()}>
             Stock Portfolio
           </Button>
-          <Button variant="text" sx={navButtonStyles()}>
+          <Button variant="text" sx={getNavButtonStyles()}>
             Precious Metals
           </Button>
-          <Button variant="text" sx={navButtonStyles()}>
+          <Button variant="text" sx={getNavButtonStyles()}>
             Crypto Portfolio
           </Button>
-          <Button variant="text" sx={navButtonStyles()}>
+          <Button variant="text" sx={getNavButtonStyles()}>
             Add New...
           </Button>
         </Stack>
@@ -123,7 +98,7 @@ const SideNavBar = () => {
       {/* Settings */}
       <Button
         variant="text"
-        sx={navButtonStyles(current === 'settings')}
+        sx={getNavButtonStyles(current === 'settings')}
         startIcon={<SettingsOutlined />}
       >
         Settings
