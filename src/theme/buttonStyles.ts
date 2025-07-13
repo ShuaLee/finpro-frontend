@@ -3,7 +3,9 @@ import { lighten, darken } from "@mui/system";
 
 const getActiveBackground = (theme: Theme) => {
   const base = theme.palette.background.default;
-  return theme.palette.mode === "dark" ? lighten(base, 0.5) : darken(base, 0.3); // slightly less dark for better feel
+  return theme.palette.mode === "dark"
+    ? lighten(base, 0.05)
+    : darken(base, 0.1); // slightly less dark for better feel
 };
 
 export const getNavButtonStyle = (theme: Theme) => ({
