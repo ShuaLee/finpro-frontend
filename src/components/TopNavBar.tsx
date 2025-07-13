@@ -39,14 +39,14 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const handleToggleDrawer = () => setDrawerOpen(!drawerOpen);
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     const target = event.currentTarget as HTMLButtonElement;
-
-    // Toggle if already open and same button
     if (anchorRef.current === target && menuOpen) {
       setMenuOpen(false);
     } else {
@@ -54,9 +54,9 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
       setMenuOpen(true);
     }
   };
+
   const handleMenuClose = () => setMenuOpen(false);
 
-  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -114,7 +114,6 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
                   height: 38,
                   width: "auto",
                   display: "block",
-                  marginTop: 0,
                 }}
               />
             </Box>
@@ -202,7 +201,6 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               onClick={onToggleDarkMode}
               color="inherit"
               disableRipple
-              disableTouchRipple
               size="small"
               sx={{
                 width: 40,
@@ -220,7 +218,11 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
 
           <List>
             {navOptions.map((label) => (
-              <ListItemButton key={label} sx={getMenuItemStyle(theme)}>
+              <ListItemButton
+                key={label}
+                onClick={handleMenuClose}
+                sx={getMenuItemStyle(theme)}
+              >
                 <ListItemText primary={label} />
               </ListItemButton>
             ))}
@@ -230,7 +232,11 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
 
           <List>
             {profileOptions.map((label) => (
-              <ListItemButton key={label} sx={getMenuItemStyle(theme)}>
+              <ListItemButton
+                key={label}
+                onClick={handleMenuClose}
+                sx={getMenuItemStyle(theme)}
+              >
                 <ListItemText primary={label} />
               </ListItemButton>
             ))}
@@ -301,21 +307,13 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
                 <Divider sx={{ my: 1 }} />
 
                 {profileOptions.map((label) => (
-                  <Box
+                  <ListItemButton
                     key={label}
                     onClick={handleMenuClose}
-                    sx={{
-                      px: 2,
-                      py: 1,
-                      cursor: "pointer",
-                      borderRadius: 1,
-                      "&:hover": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                    }}
+                    sx={getMenuItemStyle(theme)}
                   >
-                    {label}
-                  </Box>
+                    <ListItemText primary={label} />
+                  </ListItemButton>
                 ))}
               </Paper>
             </Box>
