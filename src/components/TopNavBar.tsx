@@ -21,6 +21,8 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import logoLight from "../assets/logo-w.webp";
 import logoDark from "../assets/logo-d.webp";
+
+import { getNavButtonStyle, getMenuItemStyle } from "../theme/buttonStyles.ts";
 import { useState } from "react";
 
 const navOptions = ["Home", "Portfolio", "Reports", "Settings", "Help"];
@@ -40,25 +42,10 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 
-  const handleToggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleToggleDrawer = () => setDrawerOpen(!drawerOpen);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) =>
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const navButtonStyle = {
-    borderRadius: 2,
-    height: "50px",
-    minWidth: 40,
-    paddingX: 2,
-    justifyContent: "center",
-  };
+  const handleMenuClose = () => setAnchorEl(null);
 
   return (
     <>
@@ -69,13 +56,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
       >
         <Toolbar
           disableGutters
-          sx={{
-            height: 100,
-            px: 2,
-            py: 2,
-            display: "flex",
-            justifyContent: "center",
-          }}
+          sx={{ height: 100, px: 2, py: 2, justifyContent: "center" }}
         >
           <Box
             sx={{
@@ -116,7 +97,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
                     key={label}
                     color="inherit"
                     sx={{
-                      ...navButtonStyle,
+                      ...getNavButtonStyle(theme),
                       textTransform: "none",
                       fontSize: "1rem",
                       paddingY: 1,
@@ -128,7 +109,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               </Box>
             )}
 
-            {/* Right controls: menu (mobile) OR profile dropdown */}
+            {/* Right controls */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {isMobile ? (
                 <IconButton
@@ -136,15 +117,15 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
                   color="inherit"
                   aria-label="menu"
                   onClick={handleToggleDrawer}
-                  sx={{ ...navButtonStyle }}
+                  sx={getNavButtonStyle(theme)}
                 >
                   <MenuIcon />
                 </IconButton>
               ) : (
                 <IconButton
-                  sx={{ ...navButtonStyle }}
                   color="inherit"
                   onClick={handleMenuOpen}
+                  sx={getNavButtonStyle(theme)}
                 >
                   <AccountCircleIcon />
                 </IconButton>
@@ -196,7 +177,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
           {/* Nav options */}
           <List>
             {navOptions.map((label) => (
-              <ListItemButton key={label}>
+              <ListItemButton key={label} sx={getMenuItemStyle(theme)}>
                 <ListItemText primary={label} />
               </ListItemButton>
             ))}
@@ -207,7 +188,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
           {/* Profile options */}
           <List>
             {profileOptions.map((label) => (
-              <ListItemButton key={label}>
+              <ListItemButton key={label} sx={getMenuItemStyle(theme)}>
                 <ListItemText primary={label} />
               </ListItemButton>
             ))}
@@ -215,7 +196,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
         </Box>
       </Drawer>
 
-      {/* Profile dropdown in full screen */}
+      {/* Profile dropdown (non-mobile) */}
       {!isMobile && (
         <Menu
           anchorEl={anchorEl}
@@ -244,10 +225,15 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              pointerEvents: "none",
             }}
           >
-            <span style={{ pointerEvents: "none" }}>Theme</span>
+            <span
+              style={{
+                pointerEvents: "none",
+              }}
+            >
+              Theme
+            </span>
             <IconButton
               onClick={onToggleDarkMode}
               color="inherit"
@@ -255,13 +241,12 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               disableTouchRipple
               size="small"
               sx={{
-                pointerEvents: "auto",
                 width: 40,
                 height: 40,
                 borderRadius: 2,
                 transition: "background-color 0.2s ease",
                 "&:hover": {
-                  backgroundColor: "action.hover",
+                  backgroundColor: theme.palette.action.hover,
                 },
               }}
             >
@@ -277,11 +262,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               onClick={handleMenuClose}
               disableRipple
               disableTouchRipple
-              sx={{
-                borderRadius: 2,
-                height: 50,
-                fontSize: "0.95rem",
-              }}
+              sx={getMenuItemStyle(theme)}
             >
               {label}
             </MenuItem>
