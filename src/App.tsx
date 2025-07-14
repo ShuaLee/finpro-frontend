@@ -16,6 +16,11 @@ import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
 import { useAuth } from "./context/AuthContext";
 
+const RootRedirect = () => {
+  const { isAuthenticated } = useAuth();
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/landing"} replace />;
+};
+
 const AppRoutes = ({
   darkMode,
   toggleDarkMode,
@@ -27,11 +32,10 @@ const AppRoutes = ({
   const location = useLocation();
   const path = location.pathname;
 
-  const isAuthPage = path === "/login" || path === "/create-account";
-  const minimalTopNav = isAuthPage;
-
-  // ⏳ Wait for auth check before rendering anything
   if (!authChecked) return null;
+
+  const isAuthPage =
+    path === "/login" || path === "/create-account" || path === "/landing";
 
   return (
     <>
@@ -39,16 +43,18 @@ const AppRoutes = ({
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
         hideNavLinks={false}
-        hideProfileAndMenu={minimalTopNav}
-        customRightButtons={minimalTopNav ? <></> : undefined}
+        hideProfileAndMenu={isAuthPage}
+        customRightButtons={isAuthPage ? <></> : undefined}
       />
 
       <Routes>
+        <Route path="/" element={<RootRedirect />} />
+
         <Route
-          path="/"
+          path="/landing"
           element={
             isAuthenticated ? (
-              <Dashboard />
+              <Navigate to="/dashboard" replace />
             ) : (
               <LandingPage
                 darkMode={darkMode}
@@ -57,17 +63,32 @@ const AppRoutes = ({
             )
           }
         />
+
+        <Route
+          path="/dashboard"
+          element={
+            isAuthenticated ? <Dashboard /> : <Navigate to="/landing" replace />
+          }
+        />
+
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          }
         />
+
         <Route
           path="/create-account"
           element={
-            isAuthenticated ? <Navigate to="/" replace /> : <CreateAccount />
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <CreateAccount />
+            )
           }
         />
-        {/* fallback */}
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

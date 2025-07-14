@@ -24,15 +24,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authChecked, setAuthChecked] = useState<boolean>(false);
 
+  // 🔐 Check initial auth on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/profile/", {
+        const res = await fetch("/api/auth/status/", {
           method: "GET",
-          credentials: "include",
+          credentials: "include", // this sends cookies
         });
-        setIsAuthenticated(res.ok);
-      } catch {
+
+        if (!res.ok) throw new Error("Not authenticated");
+
+        const json = await res.json();
+        console.log("AuthContext → Auth status response:", json);
+        setIsAuthenticated(json.isAuthenticated); // assuming it's always true for valid cookie
+      } catch (err) {
+        console.error("AuthContext → Error checking auth:", err);
         setIsAuthenticated(false);
       } finally {
         setAuthChecked(true);
@@ -42,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  // Refresh token every 4 minutes
+  // 🔁 Refresh token every 4 minutes
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -57,18 +64,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
 
         if (!res.ok) {
-          console.warn("Token refresh failed");
+          console.warn("AuthContext → Token refresh failed");
           setIsAuthenticated(false);
+        } else {
+          console.log("AuthContext → Token successfully refreshed");
         }
       } catch (err) {
-        console.error("Refresh error:", err);
+        console.error("AuthContext → Error refreshing token:", err);
         setIsAuthenticated(false);
       }
-    }, 4 * 60 * 1000); // 4 minutes
+    }, 4 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // 🔐 Login
   const login = async (email: string, password: string) => {
     const res = await fetch("/api/auth/login/", {
       method: "POST",
@@ -85,6 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
   };
 
+  // 📝 Signup
   const signup = async (data: SignupData) => {
     const res = await fetch("/api/auth/signup-complete/", {
       method: "POST",
@@ -108,6 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
   };
 
+  // 🚪 Logout
   const logout = async () => {
     await fetch("/api/auth/logout/", {
       method: "POST",
