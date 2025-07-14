@@ -4,7 +4,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
   useLocation,
 } from "react-router-dom";
 
@@ -14,11 +13,25 @@ import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
+import NotFoundPage from "./pages/NotFoundPage";
 import { useAuth } from "./context/AuthContext";
 
-const RootRedirect = () => {
-  const { isAuthenticated } = useAuth();
-  return <Navigate to={isAuthenticated ? "/dashboard" : "/landing"} replace />;
+const Home = ({
+  darkMode,
+  toggleDarkMode,
+}: {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+}) => {
+  const { isAuthenticated, authChecked } = useAuth();
+
+  if (!authChecked) return null;
+
+  return isAuthenticated ? (
+    <Dashboard />
+  ) : (
+    <LandingPage darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+  );
 };
 
 const AppRoutes = ({
@@ -34,8 +47,7 @@ const AppRoutes = ({
 
   if (!authChecked) return null;
 
-  const isAuthPage =
-    path === "/login" || path === "/create-account" || path === "/landing";
+  const isAuthPage = path === "/login" || path === "/create-account";
 
   return (
     <>
@@ -48,48 +60,31 @@ const AppRoutes = ({
       />
 
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
-
         <Route
-          path="/landing"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <LandingPage
-                darkMode={darkMode}
-                onToggleDarkMode={toggleDarkMode}
-              />
-            )
-          }
+          path="/"
+          element={<Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
         />
-
-        <Route
-          path="/dashboard"
-          element={
-            isAuthenticated ? <Dashboard /> : <Navigate to="/landing" replace />
-          }
-        />
-
         <Route
           path="/login"
           element={
-            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+            isAuthenticated ? (
+              <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            ) : (
+              <Login />
+            )
           }
         />
-
         <Route
           path="/create-account"
           element={
             isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
+              <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
             ) : (
               <CreateAccount />
             )
           }
         />
-
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

@@ -130,6 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     setIsAuthenticated(false);
+    window.location.href = "/"; // force reload to landing page
   };
 
   return (
