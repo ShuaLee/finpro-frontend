@@ -17,12 +17,14 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import logoLight from "../assets/logo-w.webp";
 import logoDark from "../assets/logo-d.webp";
 
 import { getNavButtonStyle, getMenuItemStyle } from "../theme/buttonStyles.ts";
-import { useState, useRef, useEffect } from "react";
 
 const navOptions = ["Home", "Portfolio", "Reports", "Settings", "Help"];
 const profileOptions = ["Profile", "Settings", "Logout"];
@@ -30,18 +32,34 @@ const profileOptions = ["Profile", "Settings", "Logout"];
 type Props = {
   onToggleDarkMode: () => void;
   darkMode: boolean;
+  customRightButtons?: React.ReactNode;
+  hideNavLinks?: boolean;
+  hideProfileAndMenu?: boolean;
 };
 
-const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
+const TopNavBar = ({
+  onToggleDarkMode,
+  darkMode,
+  customRightButtons,
+  hideNavLinks = false,
+  hideProfileAndMenu = false,
+}: Props) => {
   const logo = darkMode ? logoDark : logoLight;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   const handleToggleDrawer = () => setDrawerOpen(!drawerOpen);
 
@@ -56,6 +74,17 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
   };
 
   const handleMenuClose = () => setMenuOpen(false);
+
+  const handleProfileOptionClick = async (label: string) => {
+    handleMenuClose();
+    if (label === "Logout") {
+      await handleLogout();
+    } else if (label === "Profile") {
+      navigate("/profile");
+    } else if (label === "Settings") {
+      navigate("/settings");
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -105,21 +134,15 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               justifyContent: "space-between",
             }}
           >
-            {/* Logo */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <img
                 src={logo}
                 alt="Logo"
-                style={{
-                  height: 38,
-                  width: "auto",
-                  display: "block",
-                }}
+                style={{ height: 38, width: "auto", display: "block" }}
               />
             </Box>
 
-            {/* Nav Links */}
-            {!isMobile && (
+            {!hideNavLinks && !isMobile && (
               <Box
                 sx={{
                   display: "flex",
@@ -147,105 +170,108 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
               </Box>
             )}
 
-            {/* Right controls */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              {isMobile ? (
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={handleToggleDrawer}
-                  sx={getNavButtonStyle(theme)}
-                >
-                  <MenuIcon />
-                </IconButton>
-              ) : (
-                <IconButton
-                  ref={anchorRef}
-                  component="button"
-                  color="inherit"
-                  onClick={handleMenuOpen}
-                  sx={getNavButtonStyle(theme)}
-                >
-                  <AccountCircleIcon />
-                </IconButton>
-              )}
-            </Box>
+            {!hideProfileAndMenu && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {customRightButtons ? (
+                  customRightButtons
+                ) : isMobile ? (
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="menu"
+                    onClick={handleToggleDrawer}
+                    sx={getNavButtonStyle(theme)}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    ref={anchorRef}
+                    component="button"
+                    color="inherit"
+                    onClick={handleMenuOpen}
+                    sx={getNavButtonStyle(theme)}
+                  >
+                    <AccountCircleIcon />
+                  </IconButton>
+                )}
+              </Box>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Spacer below fixed navbar */}
       <Box sx={{ mt: "100px" }} />
 
-      {/* Drawer for mobile */}
-      <Drawer anchor="left" open={drawerOpen} onClose={handleToggleDrawer}>
-        <Box
-          sx={{ width: 250 }}
-          role="presentation"
-          onClick={handleToggleDrawer}
-          onKeyDown={handleToggleDrawer}
-        >
-          {/* Theme toggle */}
+      {!customRightButtons && !hideProfileAndMenu && (
+        <Drawer anchor="left" open={drawerOpen} onClose={handleToggleDrawer}>
           <Box
-            sx={{
-              px: 2,
-              py: 1.5,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
+            sx={{ width: 250 }}
+            role="presentation"
+            onClick={handleToggleDrawer}
+            onKeyDown={handleToggleDrawer}
           >
-            <span>Theme</span>
-            <IconButton
-              onClick={onToggleDarkMode}
-              color="inherit"
-              disableRipple
-              size="small"
+            <Box
               sx={{
-                width: 40,
-                height: 40,
-                borderRadius: 2,
-                transition: "background-color 0.2s ease",
-                "&:hover": { backgroundColor: "action.hover" },
+                px: 2,
+                py: 1.5,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
+              <span>Theme</span>
+              <IconButton
+                onClick={onToggleDarkMode}
+                color="inherit"
+                disableRipple
+                size="small"
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 2,
+                  transition: "background-color 0.2s ease",
+                  "&:hover": { backgroundColor: "action.hover" },
+                }}
+              >
+                {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+            </Box>
+
+            <Divider sx={{ my: 1 }} />
+
+            <List>
+              {navOptions.map((label) => (
+                <ListItemButton
+                  key={label}
+                  onClick={handleMenuClose}
+                  sx={getMenuItemStyle(theme)}
+                >
+                  <ListItemText primary={label} />
+                </ListItemButton>
+              ))}
+            </List>
+
+            <Divider sx={{ my: 1 }} />
+
+            <List>
+              {profileOptions.map((label) => (
+                <ListItemButton
+                  key={label}
+                  onClick={() => handleProfileOptionClick(label)}
+                  sx={getMenuItemStyle(theme)}
+                >
+                  <ListItemText primary={label} />
+                </ListItemButton>
+              ))}
+            </List>
           </Box>
+        </Drawer>
+      )}
 
-          <Divider sx={{ my: 1 }} />
-
-          <List>
-            {navOptions.map((label) => (
-              <ListItemButton
-                key={label}
-                onClick={handleMenuClose}
-                sx={getMenuItemStyle(theme)}
-              >
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
-
-          <Divider sx={{ my: 1 }} />
-
-          <List>
-            {profileOptions.map((label) => (
-              <ListItemButton
-                key={label}
-                onClick={handleMenuClose}
-                sx={getMenuItemStyle(theme)}
-              >
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
-
-      {/* Fixed dropdown menu */}
-      {!isMobile &&
+      {!customRightButtons &&
+        !isMobile &&
+        !hideProfileAndMenu &&
         menuOpen &&
         anchorRef.current &&
         (() => {
@@ -309,7 +335,7 @@ const TopNavBar = ({ onToggleDarkMode, darkMode }: Props) => {
                 {profileOptions.map((label) => (
                   <ListItemButton
                     key={label}
-                    onClick={handleMenuClose}
+                    onClick={() => handleProfileOptionClick(label)}
                     sx={getMenuItemStyle(theme)}
                   >
                     <ListItemText primary={label} />
