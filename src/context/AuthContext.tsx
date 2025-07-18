@@ -1,13 +1,17 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
-import { getCSRFToken } from "../utils/csrf";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import api from "../utils/api";
 
+// ---- Types ----
 type SignupData = {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  birthDate: string;
+  isOver13: boolean;
 };
 
 type AuthContextType = {
@@ -21,127 +25,110 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authChecked, setAuthChecked] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  // 🔐 Check initial auth on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/auth/status/", {
-          method: "GET",
-          credentials: "include", // this sends cookies
-        });
+  // ✅ Ensure CSRF cookie exists before any POST request
+  const ensureCSRFToken = async () => {
+    try {
+      await api.get("/auth/csrf/");
+    } catch (err) {
+      console.error("Failed to fetch CSRF token:", err);
+    }
+  };
 
-        if (!res.ok) throw new Error("Not authenticated");
-
-        const json = await res.json();
-        console.log("AuthContext → Auth status response:", json);
-        setIsAuthenticated(json.isAuthenticated); // assuming it's always true for valid cookie
-      } catch (err) {
-        console.error("AuthContext → Error checking auth:", err);
+  // ✅ Check authentication status (with refresh fallback)
+  const checkAuth = async () => {
+    try {
+      const res = await api.get("/auth/status/");
+      setIsAuthenticated(res.data.isAuthenticated);
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        // Try refreshing token
+        try {
+          await ensureCSRFToken();
+          await api.post("/auth/refresh/");
+          const res = await api.get("/auth/status/");
+          setIsAuthenticated(res.data.isAuthenticated);
+        } catch (refreshError) {
+          console.warn("Refresh failed during auth check", refreshError);
+          setIsAuthenticated(false);
+        }
+      } else {
         setIsAuthenticated(false);
-      } finally {
-        setAuthChecked(true);
       }
-    };
+    } finally {
+      setAuthChecked(true);
+    }
+  };
 
-    checkAuth();
-  }, []);
-
-  // 🔁 Refresh token every 4 minutes
+  // ✅ Auto-refresh tokens every 4 minutes (only when authenticated)
   useEffect(() => {
     if (!isAuthenticated) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch("/api/auth/refresh/", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "X-CSRFToken": getCSRFToken() ?? "",
-          },
-        });
-
-        if (!res.ok) {
-          console.warn("AuthContext → Token refresh failed");
-          setIsAuthenticated(false);
-        } else {
-          console.log("AuthContext → Token successfully refreshed");
-        }
-      } catch (err) {
-        console.error("AuthContext → Error refreshing token:", err);
-        setIsAuthenticated(false);
-      }
-    }, 4 * 60 * 1000);
-
+    const interval = setInterval(refreshTokens, 4 * 60 * 1000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  // 🔐 Login
-  const login = async (email: string, password: string) => {
-    const res = await fetch("/api/auth/login/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCSRFToken() ?? "",
-      },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) throw new Error("Login failed");
-
-    setIsAuthenticated(true);
+  // ✅ Refresh token function
+  const refreshTokens = async () => {
+    try {
+      await ensureCSRFToken();
+      await api.post("/auth/refresh/");
+      console.log("Tokens refreshed");
+    } catch (error) {
+      console.warn("Token refresh failed", error);
+      setIsAuthenticated(false);
+    }
   };
 
-  // 📝 Signup
+  // ✅ Run checkAuth on mount
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  // ✅ Login function
+  const login = async (email: string, password: string) => {
+    try {
+      await ensureCSRFToken();
+      await api.post("/auth/login/", { email, password });
+      setIsAuthenticated(true);
+    } catch (err: any) {
+      console.error("Login failed:", err.response?.data || err.message);
+      throw new Error(err.response?.data?.detail || "Login failed");
+    }
+  };
+
+  // ✅ Signup function
   const signup = async (data: SignupData) => {
-    const res = await fetch("/api/auth/signup-complete/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept-Language": navigator.language || "en",
-        "X-CSRFToken": getCSRFToken() ?? "",
-      },
-      credentials: "include",
-      body: JSON.stringify({
+    try {
+      await ensureCSRFToken();
+      await api.post("/auth/signup/", {
         email: data.email,
         password: data.password,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        birth_date: data.birthDate,
-      }),
-    });
-
-    if (!res.ok) throw new Error("Signup failed");
-
-    setIsAuthenticated(true);
+        is_over_13: data.isOver13, // Django expects snake_case
+      });
+      setIsAuthenticated(true);
+    } catch (err: any) {
+      console.error("Signup failed:", err.response?.data || err.message);
+      throw new Error(err.response?.data?.detail || "Signup failed");
+    }
   };
 
-  // 🚪 Logout
+  // ✅ Logout function
   const logout = async () => {
-    await fetch("/api/auth/logout/", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": getCSRFToken() ?? "",
-      },
-      credentials: "include",
-    });
-
-    setIsAuthenticated(false);
-    window.location.href = "/"; // force reload to landing page
+    try {
+      await ensureCSRFToken();
+      await api.post("/auth/logout/");
+      setIsAuthenticated(false);
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        authChecked,
-        login,
-        signup,
-        logout,
-      }}
+      value={{ isAuthenticated, authChecked, login, signup, logout }}
     >
       {children}
     </AuthContext.Provider>
