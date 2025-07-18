@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  TextField,
+  Typography,
+  Alert,
+  Link,
+} from "@mui/material";
 
 function Login() {
   const { login } = useAuth();
@@ -27,32 +37,86 @@ function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <Box
+      sx={{
+        flex: 1, // fills the remaining space under navbar
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        px: 2,
+        py: 6,
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          padding: 4,
+          maxWidth: 400,
+          width: "100%",
+          borderRadius: 3,
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          Welcome Back 👋
+        </Typography>
+        <Typography variant="body2" color="text.secondary" mb={3}>
+          Please login to your account
+        </Typography>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <br />
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <br />
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            variant="outlined"
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-      <button type="submit" disabled={loading}>
-        {loading ? "Logging in..." : "Login"}
-      </button>
-    </form>
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            variant="outlined"
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 3,
+              py: 1.5,
+              fontWeight: "bold",
+              fontSize: "16px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+          </Button>
+        </form>
+
+        <Typography variant="body2" sx={{ mt: 3 }}>
+          Don’t have an account?{" "}
+          <Link href="/create-account" underline="hover">
+            Sign up
+          </Link>
+        </Typography>
+      </Paper>
+    </Box>
   );
 }
 

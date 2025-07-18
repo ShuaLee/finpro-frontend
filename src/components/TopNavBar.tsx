@@ -10,24 +10,18 @@ import {
   ListItemText,
   useTheme,
   useMediaQuery,
-  Paper,
   Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 import logoLight from "../assets/logo-w.webp";
 import logoDark from "../assets/logo-d.webp";
-
-import { getNavButtonStyle, getMenuItemStyle } from "../theme/buttonStyles.ts";
-
-const navOptions = ["Home", "Portfolio", "Reports", "Settings", "Help"];
-const profileOptions = ["Profile", "Settings", "Logout"];
 
 type Props = {
   onToggleDarkMode: () => void;
@@ -35,7 +29,11 @@ type Props = {
   customRightButtons?: React.ReactNode;
   hideNavLinks?: boolean;
   hideProfileAndMenu?: boolean;
+  position?: "sticky" | "fixed" | "static";
 };
+
+const navOptions = ["Home", "Portfolio", "Reports", "Settings"];
+const profileOptions = ["Profile", "Settings", "Logout"];
 
 const TopNavBar = ({
   onToggleDarkMode,
@@ -43,308 +41,122 @@ const TopNavBar = ({
   customRightButtons,
   hideNavLinks = false,
   hideProfileAndMenu = false,
+  position = "sticky",
 }: Props) => {
-  const logo = darkMode ? logoDark : logoLight;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const anchorRef = useRef<HTMLButtonElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  const { logout } = useAuth();
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const logo = darkMode ? logoDark : logoLight;
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  const handleToggleDrawer = () => setDrawerOpen(!drawerOpen);
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    const target = event.currentTarget as HTMLButtonElement;
-    if (anchorRef.current === target && menuOpen) {
-      setMenuOpen(false);
-    } else {
-      anchorRef.current = target;
-      setMenuOpen(true);
-    }
-  };
-
-  const handleMenuClose = () => setMenuOpen(false);
-
-  const handleProfileOptionClick = async (label: string) => {
-    handleMenuClose();
-    if (label === "Logout") {
-      await handleLogout();
-    } else if (label === "Profile") {
-      navigate("/profile");
-    } else if (label === "Settings") {
-      navigate("/settings");
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(target) &&
-        anchorRef.current &&
-        !anchorRef.current.contains(target)
-      ) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const handleDrawerToggle = () => setDrawerOpen((prev) => !prev);
 
   return (
     <>
       <AppBar
-        position="fixed"
+        position={position}
         elevation={0}
         sx={{
           bgcolor: "background.default",
           color: "text.primary",
-          zIndex: theme.zIndex.appBar + 1,
+          zIndex: theme.zIndex.appBar,
         }}
       >
         <Toolbar
-          disableGutters
           sx={{
-            height: 100,
-            px: 2,
-            py: 2,
-            justifyContent: "center",
-            position: "relative",
+            height: 80,
+            display: "flex",
+            justifyContent: "space-between",
+            px: { xs: 2, sm: 4 },
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 1200,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <img
-                src={logo}
-                alt="Logo"
-                style={{ height: 38, width: "auto", display: "block" }}
-              />
-            </Box>
-
-            {!hideNavLinks && !isMobile && (
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  alignItems: "center",
-                  ml: 4,
-                  flexGrow: 1,
-                }}
-              >
-                {navOptions.map((label) => (
-                  <Button
-                    key={label}
-                    color="inherit"
-                    onClick={handleMenuClose}
-                    sx={{
-                      ...getNavButtonStyle(theme),
-                      textTransform: "none",
-                      fontSize: "1rem",
-                      paddingY: 1,
-                    }}
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </Box>
-            )}
-
-            {!hideProfileAndMenu && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {customRightButtons ? (
-                  customRightButtons
-                ) : isMobile ? (
-                  <IconButton
-                    edge="start"
-                    color="inherit"
-                    aria-label="menu"
-                    onClick={handleToggleDrawer}
-                    sx={getNavButtonStyle(theme)}
-                  >
-                    <MenuIcon />
-                  </IconButton>
-                ) : (
-                  <IconButton
-                    ref={anchorRef}
-                    component="button"
-                    color="inherit"
-                    onClick={handleMenuOpen}
-                    sx={getNavButtonStyle(theme)}
-                  >
-                    <AccountCircleIcon />
-                  </IconButton>
-                )}
-              </Box>
-            )}
+          {/* Logo */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <img src={logo} alt="Logo" style={{ height: 36 }} />
           </Box>
+
+          {/* Desktop Navigation */}
+          {!hideNavLinks && !isMobile && (
+            <Box sx={{ display: "flex", gap: 3 }}>
+              {navOptions.map((label) => (
+                <Button
+                  key={label}
+                  color="inherit"
+                  onClick={() => navigate(`/${label.toLowerCase()}`)}
+                  sx={{ textTransform: "none", fontSize: "1rem" }}
+                >
+                  {label}
+                </Button>
+              ))}
+            </Box>
+          )}
+
+          {/* Right Side */}
+          {!hideProfileAndMenu && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {/* Dark Mode Toggle */}
+              <IconButton onClick={onToggleDarkMode} color="inherit">
+                {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+
+              {/* Custom Buttons or Account Menu */}
+              {customRightButtons ? (
+                customRightButtons
+              ) : isMobile ? (
+                <IconButton color="inherit" onClick={handleDrawerToggle}>
+                  <MenuIcon />
+                </IconButton>
+              ) : (
+                <IconButton color="inherit" onClick={() => navigate("/profile")}>
+                  <AccountCircleIcon />
+                </IconButton>
+              )}
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ mt: "100px" }} />
-
-      {!customRightButtons && !hideProfileAndMenu && (
-        <Drawer anchor="left" open={drawerOpen} onClose={handleToggleDrawer}>
-          <Box
-            sx={{ width: 250 }}
-            role="presentation"
-            onClick={handleToggleDrawer}
-            onKeyDown={handleToggleDrawer}
-          >
-            <Box
-              sx={{
-                px: 2,
-                py: 1.5,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span>Theme</span>
-              <IconButton
-                onClick={onToggleDarkMode}
-                color="inherit"
-                disableRipple
-                size="small"
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 2,
-                  transition: "background-color 0.2s ease",
-                  "&:hover": { backgroundColor: "action.hover" },
+      {/* Mobile Drawer */}
+      <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerToggle}>
+        <Box sx={{ width: 250, p: 2 }}>
+          <Divider />
+          <List>
+            {navOptions.map((label) => (
+              <ListItemButton
+                key={label}
+                onClick={() => {
+                  navigate(`/${label.toLowerCase()}`);
+                  handleDrawerToggle();
                 }}
               >
-                {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-            </Box>
-
-            <Divider sx={{ my: 1 }} />
-
-            <List>
-              {navOptions.map((label) => (
-                <ListItemButton
-                  key={label}
-                  onClick={handleMenuClose}
-                  sx={getMenuItemStyle(theme)}
-                >
-                  <ListItemText primary={label} />
-                </ListItemButton>
-              ))}
-            </List>
-
-            <Divider sx={{ my: 1 }} />
-
-            <List>
-              {profileOptions.map((label) => (
-                <ListItemButton
-                  key={label}
-                  onClick={() => handleProfileOptionClick(label)}
-                  sx={getMenuItemStyle(theme)}
-                >
-                  <ListItemText primary={label} />
-                </ListItemButton>
-              ))}
-            </List>
-          </Box>
-        </Drawer>
-      )}
-
-      {!customRightButtons &&
-        !isMobile &&
-        !hideProfileAndMenu &&
-        menuOpen &&
-        anchorRef.current &&
-        (() => {
-          const rect = anchorRef.current.getBoundingClientRect();
-          const top = rect.bottom + 8;
-          const left = rect.right - 180;
-
-          return (
-            <Box
-              ref={menuRef}
-              sx={{
-                position: "fixed",
-                top,
-                left,
-                zIndex: theme.zIndex.appBar + 2,
-              }}
-            >
-              <Paper
-                sx={{
-                  px: 2,
-                  py: 1,
-                  borderRadius: 2,
-                  boxShadow: 4,
-                  minWidth: 180,
-                  backgroundColor: "background.paper",
+                <ListItemText primary={label} />
+              </ListItemButton>
+            ))}
+          </List>
+          <Divider sx={{ my: 2 }} />
+          <List>
+            {profileOptions.map((option) => (
+              <ListItemButton
+                key={option}
+                onClick={() => {
+                  if (option === "Logout") handleLogout();
+                  else navigate(`/${option.toLowerCase()}`);
+                  handleDrawerToggle();
                 }}
               >
-                <Box
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <span style={{ pointerEvents: "none" }}>Theme</span>
-                  <IconButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleDarkMode();
-                    }}
-                    color="inherit"
-                    size="small"
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      transition: "background-color 0.2s ease",
-                      "&:hover": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                    }}
-                  >
-                    {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-                  </IconButton>
-                </Box>
-
-                <Divider sx={{ my: 1 }} />
-
-                {profileOptions.map((label) => (
-                  <ListItemButton
-                    key={label}
-                    onClick={() => handleProfileOptionClick(label)}
-                    sx={getMenuItemStyle(theme)}
-                  >
-                    <ListItemText primary={label} />
-                  </ListItemButton>
-                ))}
-              </Paper>
-            </Box>
-          );
-        })()}
+                <ListItemText primary={option} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
     </>
   );
 };

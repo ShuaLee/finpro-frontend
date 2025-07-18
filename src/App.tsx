@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { ThemeProvider, CssBaseline } from "@mui/material";
+import { ThemeProvider, CssBaseline, Box, Button } from "@mui/material";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 
 import { lightTheme, darkTheme } from "./theme";
@@ -43,50 +44,82 @@ const AppRoutes = ({
 }) => {
   const { isAuthenticated, authChecked } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname;
 
   if (!authChecked) return null;
 
   const isAuthPage = path === "/login" || path === "/create-account";
+  const isLandingPage = path === "/";
 
   return (
-    <>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {/* ✅ Sticky Navbar */}
       <TopNavBar
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
-        hideNavLinks={false}
+        position="sticky"
+        hideNavLinks={isLandingPage || isAuthPage}
         hideProfileAndMenu={isAuthPage}
-        customRightButtons={isAuthPage ? <></> : undefined}
+        customRightButtons={
+          isLandingPage ? (
+            <>
+              <Button onClick={() => navigate("/login")} color="inherit">
+                Log In
+              </Button>
+              <Button
+                onClick={() => navigate("/create-account")}
+                color="inherit"
+                variant="outlined"
+                sx={{ ml: 1 }}
+              >
+                Create Account
+              </Button>
+            </>
+          ) : undefined
+        }
       />
 
-      <Routes>
-        <Route
-          path="/"
-          element={<Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
-        />
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? (
-              <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-            ) : (
-              <Login />
-            )
-          }
-        />
-        <Route
-          path="/create-account"
-          element={
-            isAuthenticated ? (
-              <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-            ) : (
-              <CreateAccount />
-            )
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </>
+      {/* ✅ Main Content */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          background: darkMode
+            ? "linear-gradient(135deg, #1e1e1e, #2c2c2c)"
+            : "linear-gradient(135deg, #f8f9fa, #e9ecef)",
+        }}
+      >
+        <Routes>
+          <Route
+            path="/"
+            element={<Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
+          />
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              ) : (
+                <Login />
+              )
+            }
+          />
+          <Route
+            path="/create-account"
+            element={
+              isAuthenticated ? (
+                <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              ) : (
+                <CreateAccount />
+              )
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Box>
+    </Box>
   );
 };
 
