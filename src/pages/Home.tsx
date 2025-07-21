@@ -11,7 +11,6 @@ const Home = ({ darkMode }: HomeProps) => {
   const { isAuthenticated, authChecked } = useAuth();
 
   if (!authChecked) {
-    // ✅ Show a loading spinner centered on the page
     return (
       <Box
         sx={{
@@ -26,7 +25,6 @@ const Home = ({ darkMode }: HomeProps) => {
     );
   }
 
-  // ✅ Conditional rendering based on authentication state
   return isAuthenticated ? (
     <Dashboard darkMode={darkMode} />
   ) : (
