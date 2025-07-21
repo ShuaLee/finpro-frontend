@@ -10,30 +10,11 @@ import {
 
 import { lightTheme, darkTheme } from "./theme";
 import TopNavBar from "./components/TopNavBar";
-import Dashboard from "./pages/Dashboard";
-import LandingPage from "./pages/LandingPage";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
 import NotFoundPage from "./pages/NotFoundPage";
 import { useAuth } from "./context/AuthContext";
-
-const Home = ({
-  darkMode,
-  toggleDarkMode,
-}: {
-  darkMode: boolean;
-  toggleDarkMode: () => void;
-}) => {
-  const { isAuthenticated, authChecked } = useAuth();
-
-  if (!authChecked) return null;
-
-  return isAuthenticated ? (
-    <Dashboard />
-  ) : (
-    <LandingPage darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
-  );
-};
 
 const AppRoutes = ({
   darkMode,
@@ -45,24 +26,21 @@ const AppRoutes = ({
   const { isAuthenticated, authChecked } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const path = location.pathname;
 
   if (!authChecked) return null;
 
-  const isAuthPage = path === "/login" || path === "/create-account";
+  const path = location.pathname;
   const isLandingPage = path === "/";
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {/* ✅ Sticky Navbar */}
+    <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <TopNavBar
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
-        position="sticky"
-        hideNavLinks={isLandingPage || isAuthPage}
-        hideProfileAndMenu={isAuthPage}
+        hideNavLinks={!isAuthenticated}
+        hideProfileAndMenu={!isAuthenticated}
         customRightButtons={
-          isLandingPage ? (
+          !isAuthenticated && isLandingPage ? (
             <>
               <Button onClick={() => navigate("/login")} color="inherit">
                 Log In
@@ -80,45 +58,30 @@ const AppRoutes = ({
         }
       />
 
-      {/* ✅ Main Content */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          background: darkMode
-            ? "linear-gradient(135deg, #1e1e1e, #2c2c2c)"
-            : "linear-gradient(135deg, #f8f9fa, #e9ecef)",
-        }}
-      >
-        <Routes>
-          <Route
-            path="/"
-            element={<Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />}
-          />
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? (
-                <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-              ) : (
-                <Login />
-              )
-            }
-          />
-          <Route
-            path="/create-account"
-            element={
-              isAuthenticated ? (
-                <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-              ) : (
-                <CreateAccount />
-              )
-            }
-          />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Box>
+      <Routes>
+        <Route path="/" element={<Home darkMode={darkMode} />} />
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? (
+              <Home darkMode={darkMode} />
+            ) : (
+              <Login darkMode={darkMode} />
+            )
+          }
+        />
+        <Route
+          path="/create-account"
+          element={
+            isAuthenticated ? (
+              <Home darkMode={darkMode} />
+            ) : (
+              <CreateAccount darkMode={darkMode} />
+            )
+          }
+        />
+        <Route path="*" element={<NotFoundPage darkMode={darkMode} />} />
+      </Routes>
     </Box>
   );
 };
@@ -131,10 +94,14 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AppRoutes
-          darkMode={darkMode}
-          toggleDarkMode={() => setDarkMode((prev) => !prev)}
-        />
+        <Box
+          sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        >
+          <AppRoutes
+            darkMode={darkMode}
+            toggleDarkMode={() => setDarkMode((prev) => !prev)}
+          />
+        </Box>
       </Router>
     </ThemeProvider>
   );

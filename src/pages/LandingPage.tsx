@@ -1,51 +1,44 @@
-import { Box, Button, Container, Grid, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useNavigate } from "react-router-dom";
+import MainLayout from "../layout/MainLayout";
 
 type LandingPageProps = {
   darkMode: boolean;
-  onToggleDarkMode: () => void;
 };
 
 const LandingPage = ({ darkMode }: LandingPageProps) => {
   const navigate = useNavigate();
 
-  const handleCreateAccount = () => navigate("/create-account");
-  const handleLogin = () => navigate("/login");
-
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        overflowX: "hidden",
-      }}
-    >
+    <MainLayout darkMode={darkMode}>
       {/* ✅ Hero Section */}
       <Box
         sx={{
-          minHeight: "90vh",
+          minHeight: "70vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           textAlign: "center",
-          px: 2,
-          background: darkMode
-            ? "linear-gradient(135deg, #1e1e1e, #2c2c2c)"
-            : "linear-gradient(135deg, #f8f9fa, #e9ecef)",
+          py: 6,
         }}
       >
-        <Typography variant="h2" fontWeight="bold" gutterBottom>
+        <Typography
+          variant="h2"
+          fontWeight="bold"
+          gutterBottom
+          sx={{ fontSize: { xs: "2rem", md: "3rem" } }}
+        >
           Track All Your Investments in One Place
         </Typography>
         <Typography
           variant="h6"
           color="text.secondary"
-          sx={{ maxWidth: 600, mb: 4 }}
+          sx={{ maxWidth: 700, mx: "auto", mb: 4 }}
         >
           Manage your stocks, crypto, ETFs, and real estate seamlessly. Get
-          insights, automate reports, and stay ahead.
+          insights, automate reports, and stay ahead of the market.
         </Typography>
         <Box
           sx={{
@@ -59,7 +52,7 @@ const LandingPage = ({ darkMode }: LandingPageProps) => {
             variant="contained"
             size="large"
             sx={{ px: 4, py: 1.2, fontSize: "1.1rem", borderRadius: 2 }}
-            onClick={handleCreateAccount}
+            onClick={() => navigate("/create-account")}
           >
             Get Started
           </Button>
@@ -67,26 +60,30 @@ const LandingPage = ({ darkMode }: LandingPageProps) => {
             variant="outlined"
             size="large"
             sx={{ px: 4, py: 1.2, fontSize: "1.1rem", borderRadius: 2 }}
-            onClick={handleLogin}
+            onClick={() => navigate("/login")}
           >
             Log In
           </Button>
         </Box>
       </Box>
 
-      {/* ✅ Feature Sections */}
-      <Container sx={{ py: 8 }}>
+      {/* ✅ Features Section */}
+      <Container sx={{ py: 10 }}>
         {/* Feature 1 */}
-        <Grid container spacing={6} alignItems="center" sx={{ mb: 10 }}>
+        <Grid container spacing={6} sx={{ mb: 10 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Your Entire Portfolio in One Dashboard
+              All Your Accounts in One Dashboard
             </Typography>
             <Typography color="text.secondary" mb={3}>
-              Connect your brokerage, crypto wallets, and bank accounts.
-              Visualize your net worth in real-time.
+              Connect your brokerage accounts, crypto wallets, and bank
+              accounts. Visualize your net worth in real-time.
             </Typography>
-            <Button variant="text" size="large" onClick={handleCreateAccount}>
+            <Button
+              variant="text"
+              size="large"
+              onClick={() => navigate("/create-account")}
+            >
               Start Tracking →
             </Button>
           </Grid>
@@ -101,25 +98,7 @@ const LandingPage = ({ darkMode }: LandingPageProps) => {
         </Grid>
 
         {/* Feature 2 */}
-        <Grid
-          container
-          spacing={6}
-          alignItems="center"
-          sx={{ mb: 10 }}
-          direction="row-reverse"
-        >
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Advanced Insights & Analytics
-            </Typography>
-            <Typography color="text.secondary" mb={3}>
-              AI-powered performance tracking. Understand trends, risk exposure,
-              and optimize your investments.
-            </Typography>
-            <Button variant="text" size="large" onClick={handleCreateAccount}>
-              Learn More →
-            </Button>
-          </Grid>
+        <Grid container spacing={6} sx={{ mb: 10 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Box
               component="img"
@@ -128,19 +107,39 @@ const LandingPage = ({ darkMode }: LandingPageProps) => {
               sx={{ width: "100%", borderRadius: 3, boxShadow: 3 }}
             />
           </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              AI Insights & Performance Analytics
+            </Typography>
+            <Typography color="text.secondary" mb={3}>
+              Leverage advanced AI-powered analytics to optimize your portfolio.
+              Understand trends, risks, and potential growth areas.
+            </Typography>
+            <Button
+              variant="text"
+              size="large"
+              onClick={() => navigate("/create-account")}
+            >
+              Learn More →
+            </Button>
+          </Grid>
         </Grid>
 
         {/* Feature 3 */}
-        <Grid container spacing={6} alignItems="center" sx={{ mb: 10 }}>
+        <Grid container spacing={6}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Bank-Level Security & Privacy
+              Bank-Level Security
             </Typography>
             <Typography color="text.secondary" mb={3}>
-              Your data is encrypted and never shared. Two-factor authentication
-              keeps your account safe.
+              Your data is encrypted and stored with industry-leading security
+              standards. Enable two-factor authentication for added protection.
             </Typography>
-            <Button variant="text" size="large" onClick={handleCreateAccount}>
+            <Button
+              variant="text"
+              size="large"
+              onClick={() => navigate("/create-account")}
+            >
               Get Started →
             </Button>
           </Grid>
@@ -169,18 +168,18 @@ const LandingPage = ({ darkMode }: LandingPageProps) => {
           Ready to Take Control of Your Investments?
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 4 }}>
-          Join thousands of smart investors who trust FinPro.
+          Join thousands of investors already using our platform.
         </Typography>
         <Button
           variant="contained"
           size="large"
           sx={{ px: 5, py: 1.4, fontSize: "1.2rem", borderRadius: 2 }}
-          onClick={handleCreateAccount}
+          onClick={() => navigate("/create-account")}
         >
           Create Account
         </Button>
       </Box>
-    </Box>
+    </MainLayout>
   );
 };
 

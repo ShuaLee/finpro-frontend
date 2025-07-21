@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  Box,
   Button,
   CircularProgress,
   Paper,
@@ -10,14 +9,22 @@ import {
   Typography,
   Alert,
   Link,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import MainLayout from "../layout/MainLayout";
 
-function Login() {
+type LoginProps = { darkMode: boolean };
+
+function Login({ darkMode }: LoginProps) {
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,8 +35,8 @@ function Login() {
     try {
       setLoading(true);
       await login(email, password);
-      navigate("/"); // redirect to dashboard
-    } catch (err) {
+      navigate("/");
+    } catch {
       setError("Invalid email or password");
     } finally {
       setLoading(false);
@@ -37,16 +44,7 @@ function Login() {
   };
 
   return (
-    <Box
-      sx={{
-        flex: 1, // fills the remaining space under navbar
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        px: 2,
-        py: 6,
-      }}
-    >
+    <MainLayout darkMode={darkMode} centeredContent>
       <Paper
         elevation={6}
         sx={{
@@ -61,7 +59,7 @@ function Login() {
           Welcome Back 👋
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          Please login to your account
+          Please log in to your account
         </Typography>
 
         {error && (
@@ -75,7 +73,6 @@ function Login() {
             fullWidth
             label="Email"
             type="email"
-            variant="outlined"
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -85,24 +82,30 @@ function Login() {
           <TextField
             fullWidth
             label="Password"
-            type="password"
-            variant="outlined"
+            type={showPassword ? "text" : "password"}
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <Button
             type="submit"
             variant="contained"
             fullWidth
-            sx={{
-              mt: 3,
-              py: 1.5,
-              fontWeight: "bold",
-              fontSize: "16px",
-            }}
+            sx={{ mt: 3, py: 1.5, fontWeight: "bold", fontSize: "16px" }}
             disabled={loading}
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
@@ -111,12 +114,16 @@ function Login() {
 
         <Typography variant="body2" sx={{ mt: 3 }}>
           Don’t have an account?{" "}
-          <Link href="/create-account" underline="hover">
+          <Link
+            component="button"
+            underline="hover"
+            onClick={() => navigate("/create-account")}
+          >
             Sign up
           </Link>
         </Typography>
       </Paper>
-    </Box>
+    </MainLayout>
   );
 }
 

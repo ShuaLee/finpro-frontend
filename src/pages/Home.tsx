@@ -1,23 +1,36 @@
-// src/pages/Home.tsx
 import { useAuth } from "../context/AuthContext";
 import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
+import { CircularProgress, Box } from "@mui/material";
 
-const Home = ({
-  darkMode,
-  onToggleDarkMode,
-}: {
+type HomeProps = {
   darkMode: boolean;
-  onToggleDarkMode: () => void;
-}) => {
+};
+
+const Home = ({ darkMode }: HomeProps) => {
   const { isAuthenticated, authChecked } = useAuth();
 
-  if (!authChecked) return null; // or a spinner
+  if (!authChecked) {
+    // ✅ Show a loading spinner centered on the page
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "80vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
+  // ✅ Conditional rendering based on authentication state
   return isAuthenticated ? (
-    <Dashboard />
+    <Dashboard darkMode={darkMode} />
   ) : (
-    <LandingPage darkMode={darkMode} onToggleDarkMode={onToggleDarkMode} />
+    <LandingPage darkMode={darkMode} />
   );
 };
 

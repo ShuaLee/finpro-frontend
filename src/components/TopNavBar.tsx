@@ -11,6 +11,8 @@ import {
   useTheme,
   useMediaQuery,
   Divider,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
@@ -33,7 +35,6 @@ type Props = {
 };
 
 const navOptions = ["Home", "Portfolio", "Reports", "Settings"];
-const profileOptions = ["Profile", "Settings", "Logout"];
 
 const TopNavBar = ({
   onToggleDarkMode,
@@ -46,17 +47,29 @@ const TopNavBar = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
   const logo = darkMode ? logoDark : logoLight;
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+  const handleDrawerToggle = () => setDrawerOpen((prev) => !prev);
+
+  const handleProfileMenuOpen = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleDrawerToggle = () => setDrawerOpen((prev) => !prev);
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    await logout();
+    navigate("/"); // Redirect after logout
+  };
 
   return (
     <>
@@ -66,60 +79,95 @@ const TopNavBar = ({
         sx={{
           bgcolor: "background.default",
           color: "text.primary",
-          zIndex: theme.zIndex.appBar,
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Toolbar
           sx={{
             height: 80,
-            display: "flex",
-            justifyContent: "space-between",
             px: { xs: 2, sm: 4 },
           }}
         >
-          {/* Logo */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <img src={logo} alt="Logo" style={{ height: 36 }} />
+          {/* ✅ Center content with max width */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: "1200px",
+              margin: "0 auto",
+            }}
+          >
+            {/* Logo */}
+            <Box
+              sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              onClick={() => navigate("/")}
+            >
+              <img src={logo} alt="Logo" style={{ height: 36 }} />
+            </Box>
+
+            {/* Desktop Navigation */}
+            {!hideNavLinks && !isMobile && (
+              <Box sx={{ display: "flex", gap: 3 }}>
+                {navOptions.map((label) => (
+                  <Button
+                    key={label}
+                    color="inherit"
+                    onClick={() => navigate(`/${label.toLowerCase()}`)}
+                    sx={{ textTransform: "none", fontSize: "1rem" }}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </Box>
+            )}
+
+            {/* Right Side */}
+            {!hideProfileAndMenu && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {/* Dark Mode Toggle */}
+                <IconButton onClick={onToggleDarkMode} color="inherit">
+                  {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                </IconButton>
+
+                {/* Custom Buttons or Profile/Menu */}
+                {customRightButtons ? (
+                  customRightButtons
+                ) : isMobile ? (
+                  <IconButton color="inherit" onClick={handleDrawerToggle}>
+                    <MenuIcon />
+                  </IconButton>
+                ) : (
+                  <>
+                    <IconButton color="inherit" onClick={handleProfileMenuOpen}>
+                      <AccountCircleIcon />
+                    </IconButton>
+                    {/* Dropdown Menu */}
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleMenuClose}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                    >
+                      <MenuItem onClick={() => navigate("/profile")}>
+                        Profile
+                      </MenuItem>
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </Menu>
+                  </>
+                )}
+              </Box>
+            )}
           </Box>
-
-          {/* Desktop Navigation */}
-          {!hideNavLinks && !isMobile && (
-            <Box sx={{ display: "flex", gap: 3 }}>
-              {navOptions.map((label) => (
-                <Button
-                  key={label}
-                  color="inherit"
-                  onClick={() => navigate(`/${label.toLowerCase()}`)}
-                  sx={{ textTransform: "none", fontSize: "1rem" }}
-                >
-                  {label}
-                </Button>
-              ))}
-            </Box>
-          )}
-
-          {/* Right Side */}
-          {!hideProfileAndMenu && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              {/* Dark Mode Toggle */}
-              <IconButton onClick={onToggleDarkMode} color="inherit">
-                {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-
-              {/* Custom Buttons or Account Menu */}
-              {customRightButtons ? (
-                customRightButtons
-              ) : isMobile ? (
-                <IconButton color="inherit" onClick={handleDrawerToggle}>
-                  <MenuIcon />
-                </IconButton>
-              ) : (
-                <IconButton color="inherit" onClick={() => navigate("/profile")}>
-                  <AccountCircleIcon />
-                </IconButton>
-              )}
-            </Box>
-          )}
         </Toolbar>
       </AppBar>
 
@@ -142,18 +190,12 @@ const TopNavBar = ({
           </List>
           <Divider sx={{ my: 2 }} />
           <List>
-            {profileOptions.map((option) => (
-              <ListItemButton
-                key={option}
-                onClick={() => {
-                  if (option === "Logout") handleLogout();
-                  else navigate(`/${option.toLowerCase()}`);
-                  handleDrawerToggle();
-                }}
-              >
-                <ListItemText primary={option} />
-              </ListItemButton>
-            ))}
+            <ListItemButton onClick={() => navigate("/profile")}>
+              <ListItemText primary="Profile" />
+            </ListItemButton>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
           </List>
         </Box>
       </Drawer>

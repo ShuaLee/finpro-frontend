@@ -7,7 +7,6 @@ import {
 } from "react";
 import api from "../utils/api";
 
-// ---- Types ----
 type SignupData = {
   email: string;
   password: string;
@@ -28,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // ✅ Ensure CSRF cookie exists before any POST request
   const ensureCSRFToken = async () => {
     try {
       await api.get("/auth/csrf/");
@@ -37,14 +35,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ✅ Check authentication status (with refresh fallback)
   const checkAuth = async () => {
     try {
       const res = await api.get("/auth/status/");
       setIsAuthenticated(res.data.isAuthenticated);
     } catch (err: any) {
       if (err.response?.status === 401) {
-        // Try refreshing token
         try {
           await ensureCSRFToken();
           await api.post("/auth/refresh/");
@@ -62,14 +58,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ✅ Auto-refresh tokens every 4 minutes (only when authenticated)
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   useEffect(() => {
     if (!isAuthenticated) return;
     const interval = setInterval(refreshTokens, 4 * 60 * 1000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  // ✅ Refresh token function
   const refreshTokens = async () => {
     try {
       await ensureCSRFToken();
@@ -81,12 +79,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ✅ Run checkAuth on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  // ✅ Login function
   const login = async (email: string, password: string) => {
     try {
       await ensureCSRFToken();
@@ -98,14 +90,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ✅ Signup function
   const signup = async (data: SignupData) => {
     try {
       await ensureCSRFToken();
       await api.post("/auth/signup/", {
         email: data.email,
         password: data.password,
-        is_over_13: data.isOver13, // Django expects snake_case
+        is_over_13: data.isOver13,
       });
       setIsAuthenticated(true);
     } catch (err: any) {
@@ -114,15 +105,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ✅ Logout function
   const logout = async () => {
     try {
       await ensureCSRFToken();
       await api.post("/auth/logout/");
-      setIsAuthenticated(false);
-      window.location.href = "/";
     } catch (err) {
       console.error("Logout failed:", err);
+    } finally {
+      // ✅ Ensure state clears even if API fails
+      setIsAuthenticated(false);
     }
   };
 
