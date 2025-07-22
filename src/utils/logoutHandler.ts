@@ -1,11 +1,12 @@
-let logoutFn: (() => void) | null = null;
+import api from "./api";
 
-export const registerLogout = (fn: () => void) => {
-  logoutFn = fn;
-};
-
-export const logoutHandler = () => {
-  if (logoutFn) {
-    logoutFn(); // Calls the real logout from AuthContext
+export const logout = async () => {
+  try {
+    await api.post("/auth/logout/");
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      // Silent, user already logged out
+      return;
+    }
   }
 };

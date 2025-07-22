@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "../utils/api";
-import { registerLogout } from "../utils/logoutHandler";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -24,11 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileComplete, setProfileComplete] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-
-  // ✅ Register global logout handler
-  useEffect(() => {
-    registerLogout(logout);
-  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -63,7 +57,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isOver13: boolean;
   }) => {
     try {
-      await api.post("/auth/signup/", data);
+      await api.post("/auth/signup/", {
+        email: data.email,
+        password: data.password,
+        is_over_13: data.isOver13, // ✅ Fix key name for Django
+      });
       setIsAuthenticated(true);
     } catch (error) {
       setIsAuthenticated(false);

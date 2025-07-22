@@ -1,5 +1,4 @@
 import axios from "axios";
-import { logoutHandler } from "./logoutHandler";
 
 const api = axios.create({
   baseURL: "http://localhost:8000/api/v1",
@@ -19,18 +18,28 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ✅ Handle 401 with refresh
+// ✅ Response Interceptor for Auth
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // ✅ Prevent loop for logout
+    if (!error.response) return Promise.reject(error);
+
     if (originalRequest.url?.includes("/auth/logout/")) {
-      return Promise.reject(error);
+      return Promise.reject(error); // don't retry logout
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // ✅ If /auth/status/ returns 401, just resolve silently
+    if (
+      originalRequest.url?.includes("/auth/status/") &&
+      error.response.status === 401
+    ) {
+      return Promise.reject(error); // no refresh attempt
+    }
+
+    // ✅ Handle refresh only for requests that need auth
+    if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -40,9 +49,9 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
         return api(originalRequest);
-      } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
-        logoutHandler(); // ✅ Trigger logout
+      } catch {
+        // ✅ Silent fail, just trigger logout state (no console.error spam)
+        return Promise.reject(error);
       }
     }
 
