@@ -11,11 +11,8 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
-import MainLayout from "../layout/MainLayout";
 
-type CreateAccountProps = { darkMode: boolean };
-
-function CreateAccount({ darkMode }: CreateAccountProps) {
+function CreateAccount() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
@@ -47,7 +44,7 @@ function CreateAccount({ darkMode }: CreateAccountProps) {
     try {
       setLoading(true);
       await signup(formData);
-      navigate("/");
+      navigate("/dashboard");
     } catch {
       setError("Signup failed. Please try again.");
     } finally {
@@ -56,81 +53,79 @@ function CreateAccount({ darkMode }: CreateAccountProps) {
   };
 
   return (
-    <MainLayout darkMode={darkMode} centeredContent>
-      <Paper
-        elevation={6}
-        sx={{
-          padding: 4,
-          maxWidth: 400,
-          width: "100%",
-          borderRadius: 3,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Create Account
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={3}>
-          Please fill in the details below
-        </Typography>
+    <Paper
+      elevation={6}
+      sx={{
+        padding: 4,
+        maxWidth: 400,
+        width: "100%",
+        borderRadius: 3,
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Create Account
+      </Typography>
+      <Typography variant="body2" color="text.secondary" mb={3}>
+        Please fill in the details below
+      </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            margin="normal"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+      <form onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Email"
+          name="email"
+          type="email"
+          margin="normal"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
-          <TextField
-            fullWidth
-            label="Password"
-            name="password"
-            type="password"
-            margin="normal"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+        <TextField
+          fullWidth
+          label="Password"
+          name="password"
+          type="password"
+          margin="normal"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="isOver13"
-                checked={formData.isOver13}
-                onChange={handleChange}
-              />
-            }
-            label="I confirm I am at least 13 years old"
-            sx={{ mt: 1 }}
-          />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="isOver13"
+              checked={formData.isOver13}
+              onChange={handleChange}
+            />
+          }
+          label="I confirm I am at least 13 years old"
+          sx={{ mt: 1 }}
+        />
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, py: 1.5, fontWeight: "bold", fontSize: "16px" }}
-            disabled={loading}
-          >
-            {loading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              "Create Account"
-            )}
-          </Button>
-        </form>
-      </Paper>
-    </MainLayout>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, py: 1.5, fontWeight: "bold", fontSize: "16px" }}
+          disabled={loading}
+        >
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Create Account"
+          )}
+        </Button>
+      </form>
+    </Paper>
   );
 }
 

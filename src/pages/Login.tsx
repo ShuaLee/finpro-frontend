@@ -14,11 +14,8 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import MainLayout from "../layout/MainLayout";
 
-type LoginProps = { darkMode: boolean };
-
-function Login({ darkMode }: LoginProps) {
+function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -35,7 +32,7 @@ function Login({ darkMode }: LoginProps) {
     try {
       setLoading(true);
       await login(email, password);
-      navigate("/");
+      navigate("/dashboard");
     } catch {
       setError("Invalid email or password");
     } finally {
@@ -44,86 +41,84 @@ function Login({ darkMode }: LoginProps) {
   };
 
   return (
-    <MainLayout darkMode={darkMode} centeredContent>
-      <Paper
-        elevation={6}
-        sx={{
-          padding: 4,
-          maxWidth: 400,
-          width: "100%",
-          borderRadius: 3,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Welcome Back 👋
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={3}>
-          Please log in to your account
-        </Typography>
+    <Paper
+      elevation={6}
+      sx={{
+        padding: 4,
+        maxWidth: 400,
+        width: "100%",
+        borderRadius: 3,
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Welcome Back 👋
+      </Typography>
+      <Typography variant="body2" color="text.secondary" mb={3}>
+        Please log in to your account
+      </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Email"
-            type="email"
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+      <form onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Email"
+          type="email"
+          margin="normal"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-          <TextField
-            fullWidth
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+        <TextField
+          fullWidth
+          label="Password"
+          type={showPassword ? "text" : "password"}
+          margin="normal"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3, py: 1.5, fontWeight: "bold", fontSize: "16px" }}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
-          </Button>
-        </form>
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{ mt: 3, py: 1.5, fontWeight: "bold", fontSize: "16px" }}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+        </Button>
+      </form>
 
-        <Typography variant="body2" sx={{ mt: 3 }}>
-          Don’t have an account?{" "}
-          <Link
-            component="button"
-            underline="hover"
-            onClick={() => navigate("/create-account")}
-          >
-            Sign up
-          </Link>
-        </Typography>
-      </Paper>
-    </MainLayout>
+      <Typography variant="body2" sx={{ mt: 3 }}>
+        Don’t have an account?{" "}
+        <Link
+          component="button"
+          underline="hover"
+          onClick={() => navigate("/create-account")}
+        >
+          Sign up
+        </Link>
+      </Typography>
+    </Paper>
   );
 }
 

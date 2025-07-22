@@ -15,7 +15,7 @@ const MainLayout = ({
   return (
     <Box
       sx={{
-        flex: 1,
+        flex: 1, // ✅ Fills remaining height below navbar
         display: "flex",
         flexDirection: "column",
         background: darkMode
@@ -25,15 +25,16 @@ const MainLayout = ({
     >
       <Box
         sx={{
+          flex: 1, // ✅ Makes sure the inner content also fills
           width: "100%",
           maxWidth: "1200px",
           margin: "0 auto",
           px: { xs: 2, sm: 3 },
-          flex: 1, // ✅ Fill available height
-          display: centeredContent ? "flex" : "block",
-          alignItems: centeredContent ? "center" : "initial",
-          justifyContent: centeredContent ? "center" : "initial",
-          ...(centeredContent ? {} : { py: 3 }),
+          display: "flex",
+          flexDirection: "column",
+          alignItems: centeredContent ? "center" : "stretch",
+          justifyContent: centeredContent ? "center" : "flex-start",
+          py: centeredContent ? 0 : 3,
         }}
       >
         {children}

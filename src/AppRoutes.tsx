@@ -4,19 +4,25 @@ import { useAuth } from "./context/AuthContext";
 
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import type { JSX } from "react";
+import AppLayout from "./layout/AppLayout";
 
-type Props = { darkMode: boolean };
+type Props = { darkMode: boolean; toggleDarkMode: () => void };
 
-const AppRoutes = ({ darkMode }: Props) => {
+const AppRoutes = ({ darkMode, toggleDarkMode }: Props) => {
   const { isAuthenticated, authChecked } = useAuth();
 
   if (!authChecked) {
     return (
       <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
       >
         <CircularProgress />
       </Box>
@@ -24,32 +30,54 @@ const AppRoutes = ({ darkMode }: Props) => {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage darkMode={darkMode} />}
-      />
-      <Route
-        path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login darkMode={darkMode} />}
-      />
-
-      <Route
-        path="/dashboard"
-        element={<ProtectedRoute isAuthenticated={isAuthenticated}><Dashboard darkMode={darkMode} /></ProtectedRoute>}
-      />
-      <Route
-        path="/home"
-        element={<ProtectedRoute isAuthenticated={isAuthenticated}><Home darkMode={darkMode} /></ProtectedRoute>}
-      />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <AppLayout
+      darkMode={darkMode}
+      toggleDarkMode={toggleDarkMode}
+      isAuthenticated={isAuthenticated}
+    >
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <LandingPage />
+            )
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
+        <Route
+          path="/create-account"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <CreateAccount />
+            )
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            isAuthenticated ? <Home /> : <Navigate to="/login" replace />
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AppLayout>
   );
-};
-
-const ProtectedRoute = ({ isAuthenticated, children }: { isAuthenticated: boolean; children: JSX.Element }) => {
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 export default AppRoutes;

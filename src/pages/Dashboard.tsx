@@ -11,14 +11,13 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import MainLayout from "../layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 
 type CountryOption = { code: string; name: string };
 type CurrencyOption = { code: string; name: string };
 
-const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
+const Dashboard = () => {
   const { isProfileComplete, isAuthenticated, setProfileComplete } = useAuth();
   const [open, setOpen] = useState(isAuthenticated && !isProfileComplete);
 
@@ -33,19 +32,16 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
-  // ✅ Snackbar state
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
 
-  // ✅ Fetch profile and metadata
   useEffect(() => {
     const fetchData = async () => {
       try {
         setFetching(true);
-
         const profileRes = await api.get("/users/profile/");
         setForm({
           full_name: profileRes.data.full_name || "",
@@ -74,10 +70,8 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
     try {
       setLoading(true);
       await api.patch("/users/profile/", form);
-
       setProfileComplete(true);
       setOpen(false);
-
       setSnackbar({
         open: true,
         message: "Profile updated successfully!",
@@ -111,7 +105,7 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh",
+          minHeight: "80vh",
         }}
       >
         <CircularProgress />
@@ -120,12 +114,13 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
   }
 
   return (
-    <MainLayout darkMode={darkMode}>
+    <>
       <Box>
         <h1>Dashboard</h1>
-        {/* Add your dashboard widgets here */}
+        <p>Welcome! Add your widgets and reports here.</p>
       </Box>
 
+      {/* Profile Completion Dialog */}
       <Dialog open={open} disableEscapeKeyDown>
         <DialogTitle>Complete Your Profile</DialogTitle>
         <DialogContent>
@@ -138,7 +133,6 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
             onChange={handleChange}
           />
 
-          {/* ✅ Country Dropdown */}
           <Autocomplete
             options={countries}
             getOptionLabel={(option) => option.name}
@@ -150,7 +144,9 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
             onChange={(_, newValue) =>
               setForm({
                 ...form,
-                country: newValue?.code ? newValue.code.toUpperCase() : form.country,
+                country: newValue?.code
+                  ? newValue.code.toUpperCase()
+                  : form.country,
               })
             }
             renderInput={(params) => (
@@ -158,13 +154,13 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
             )}
           />
 
-          {/* ✅ Currency Dropdown */}
           <Autocomplete
             options={currencies}
             getOptionLabel={(option) => option.name}
             value={
               form.preferred_currency
-                ? currencies.find((c) => c.code === form.preferred_currency) || null
+                ? currencies.find((c) => c.code === form.preferred_currency) ||
+                  null
                 : null
             }
             onChange={(_, newValue) =>
@@ -176,7 +172,11 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
               })
             }
             renderInput={(params) => (
-              <TextField {...params} label="Preferred Currency" margin="normal" />
+              <TextField
+                {...params}
+                label="Preferred Currency"
+                margin="normal"
+              />
             )}
           />
 
@@ -193,14 +193,14 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
             variant="outlined"
             fullWidth
             sx={{ mt: 1 }}
-            onClick={() => setOpen(false)} // ✅ Failsafe close
+            onClick={() => setOpen(false)}
           >
             Skip for now
           </Button>
         </DialogContent>
       </Dialog>
 
-      {/* ✅ Snackbar for feedback */}
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -211,7 +211,7 @@ const Dashboard = ({ darkMode }: { darkMode: boolean }) => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </MainLayout>
+    </>
   );
 };
 

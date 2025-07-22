@@ -3,11 +3,7 @@ import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
 import { CircularProgress, Box } from "@mui/material";
 
-type HomeProps = {
-  darkMode: boolean;
-};
-
-const Home = ({ darkMode }: HomeProps) => {
+const Home = () => {
   const { isAuthenticated, authChecked } = useAuth();
 
   if (!authChecked) {
@@ -25,11 +21,7 @@ const Home = ({ darkMode }: HomeProps) => {
     );
   }
 
-  return isAuthenticated ? (
-    <Dashboard darkMode={darkMode} />
-  ) : (
-    <LandingPage darkMode={darkMode} />
-  );
+  return isAuthenticated ? <Dashboard /> : <LandingPage />;
 };
 
 export default Home;

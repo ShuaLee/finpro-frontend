@@ -7,12 +7,20 @@ type AuthContextType = {
   isProfileComplete: boolean;
   authChecked: boolean;
   setProfileComplete: (value: boolean) => void;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (data: {
+    email: string;
+    password: string;
+    isOver13: boolean;
+  }) => Promise<void>;
   logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileComplete, setProfileComplete] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -39,6 +47,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
+  const login = async (email: string, password: string) => {
+    try {
+      await api.post("/auth/login/", { email, password });
+      setIsAuthenticated(true);
+    } catch (error) {
+      setIsAuthenticated(false);
+      throw error;
+    }
+  };
+
+  const signup = async (data: {
+    email: string;
+    password: string;
+    isOver13: boolean;
+  }) => {
+    try {
+      await api.post("/auth/signup/", data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      setIsAuthenticated(false);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
       await api.post("/auth/logout/");
@@ -52,7 +84,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isProfileComplete, authChecked, setProfileComplete, logout }}
+      value={{
+        isAuthenticated,
+        isProfileComplete,
+        authChecked,
+        setProfileComplete,
+        login,
+        signup,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
