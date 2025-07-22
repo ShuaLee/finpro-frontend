@@ -24,31 +24,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isProfileComplete, setProfileComplete] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await api.get("/auth/status/");
-        setIsAuthenticated(res.data.is_authenticated);
-        setProfileComplete(res.data.is_profile_complete);
-      } catch {
-        setIsAuthenticated(false);
-        setProfileComplete(false);
-      } finally {
-        setAuthChecked(true);
-      }
-    };
+  const refreshAuthStatus = async () => {
+    try {
+      const res = await api.get("/auth/status/");
+      setIsAuthenticated(res.data.is_authenticated);
+      setProfileComplete(res.data.is_profile_complete);
+    } catch {
+      setIsAuthenticated(false);
+      setProfileComplete(false);
+    } finally {
+      setAuthChecked(true);
+    }
+  };
 
-    checkAuth();
+  useEffect(() => {
+    refreshAuthStatus();
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      await api.post("/auth/login/", { email, password });
-      setIsAuthenticated(true);
-    } catch (error) {
-      setIsAuthenticated(false);
-      throw error;
-    }
+    await api.post("/auth/login/", { email, password });
+    await refreshAuthStatus(); // ✅ Refresh after login
   };
 
   const signup = async (data: {
@@ -56,24 +51,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string;
     isOver13: boolean;
   }) => {
-    try {
-      await api.post("/auth/signup/", {
-        email: data.email,
-        password: data.password,
-        is_over_13: data.isOver13, // ✅ Fix key name for Django
-      });
-      setIsAuthenticated(true);
-    } catch (error) {
-      setIsAuthenticated(false);
-      throw error;
-    }
+    await api.post("/auth/signup/", {
+      email: data.email,
+      password: data.password,
+      is_over_13: data.isOver13,
+    });
+    await refreshAuthStatus(); // ✅ Refresh after signup
   };
 
   const logout = async () => {
     try {
       await api.post("/auth/logout/");
-    } catch (error) {
-      console.warn("Logout API failed (already logged out?):", error);
+    } catch {
+      // Silent fail
     } finally {
       setIsAuthenticated(false);
       setProfileComplete(false);
