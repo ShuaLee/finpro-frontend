@@ -35,15 +35,18 @@ const AppLayout = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh", // ✅ Full height for app
+        minHeight: "100vh",
       }}
     >
+      {/* ✅ Top Navbar */}
       <TopNavBar
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
         hideProfileAndMenu={!isAuthenticated || hideProfileAndMenu}
         hideNavLinks={hideNavLinks}
       />
+
+      {/* ✅ Main Page Layout */}
       <MainLayout darkMode={darkMode} centeredContent={centeredContent}>
         {children}
       </MainLayout>

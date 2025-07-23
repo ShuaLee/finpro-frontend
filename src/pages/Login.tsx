@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -16,7 +16,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 function Login() {
-  const { login } = useAuth();
+  const { login, isAuthenticated, authChecked } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -25,20 +25,41 @@ function Login() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  /**
+   * ✅ Redirect if already authenticated
+   */
+  useEffect(() => {
+    if (authChecked && isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [authChecked, isAuthenticated, navigate]);
+
+  /**
+   * ✅ Handle login form submission
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
-      setLoading(true);
       await login(email, password);
-      navigate("/dashboard");
+      // ❌ Do not navigate here, let useEffect handle redirection
     } catch {
-      setError("Invalid email or password");
+      setError("Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (!authChecked) {
+    // Optional: Loading state while checking auth
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <Paper
@@ -49,6 +70,7 @@ function Login() {
         width: "100%",
         borderRadius: 3,
         textAlign: "center",
+        margin: "auto",
       }}
     >
       <Typography variant="h4" fontWeight="bold" gutterBottom>

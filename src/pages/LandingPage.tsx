@@ -1,8 +1,18 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  // ✅ Redirect if user is logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <Box
@@ -15,7 +25,7 @@ const LandingPage = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          flex: 1, // ✅ This stretches hero
+          flex: 1,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -67,9 +77,7 @@ const LandingPage = () => {
       </Box>
 
       {/* Features Section */}
-      <Container sx={{ py: 10 }}>
-        {/* Keep your feature grid as is */}
-      </Container>
+      <Container sx={{ py: 10 }}>{/* Feature grid remains */}</Container>
     </Box>
   );
 };
